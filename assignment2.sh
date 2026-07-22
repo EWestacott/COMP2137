@@ -2,7 +2,13 @@
 
 echo "Starting System Configuration"
 
-# 1. Network Interface (Netplan)
+# Ensure script is run with sudo/root privileges
+if [ "$EUID" -ne 0 ]; then
+    echo "Error: Must be run as root." >&2
+    exit 1
+fi
+
+# Network Interface (Netplan)
 echo "Configuring Network"
 CURRENT_IP_CIDR=$(ip -o -4 addr show | grep "192.168.16" | awk '{print $4}' | head -n1)
 
@@ -18,7 +24,7 @@ else
     echo "Network is already 192.168.16.21/24 - skipping."
 fi
 
-# 2. Update /etc/hosts
+# Update /etc/hosts
 echo "Updating /etc/hosts"
 HOST_NAME=$(hostname)
 
@@ -31,7 +37,7 @@ else
     echo "/etc/hosts updated with 192.168.16.21 $HOST_NAME."
 fi
 
-# 3. Software Packages
+# Software Packages
 echo "Checking Software Packages"
 PACKAGES=("apache2" "squid")
 
@@ -45,7 +51,7 @@ for pkg in "${PACKAGES[@]}"; do
     systemctl enable --now "$pkg" &>/dev/null
 done
 
-# 4. Users & SSH Keys
+# Users & SSH Keys
 echo "Provisioning Users"
 USERS=("dennis" "aubrey" "captain" "snibbles" "brownie" "scooter" "sandy" "perrier" "cindy" "tiger" "yoda")
 ADMIN_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI student@generic-vm"
