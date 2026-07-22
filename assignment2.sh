@@ -58,6 +58,17 @@ ADMIN_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK
 
 for user in "${USERS[@]}"; do
 
+    # Creat User and Group if Missing
+    if ! id "$user" &>/dev/null; then
+        useradd -m -U -s /bin/bash "$user"
+        echo "Created user $user."
+    fi
+
+    # Adds dennis to sudo group AFTER making sure dennis exists
+    if [ "$user" == "dennis" ]; then
+        usermod -aG sudo dennis
+    fi
+
     # Define paths
     ssh_dir="/home/$user/.ssh"
     auth_keys="$ssh_dir/authorized_keys"
